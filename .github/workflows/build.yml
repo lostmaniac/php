@@ -1,0 +1,30 @@
+name: Build and Push Docker Image to GitHub Packages
+
+on:
+  push:
+    branches:
+      - main  # 或你希望触发构建的其他分支
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64  # 根据需要指定平台
+          push: true
+          tags: ghcr.io/${{ github.repository }}/pbootcms:latest,ghcr.io/${{ github.repository }}/pbootcms:${{ github.sha }}
